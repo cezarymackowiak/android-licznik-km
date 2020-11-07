@@ -3,6 +3,7 @@ package com.example.myapplication;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -27,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
     LocationService myService;
     static boolean status;
     LocationManager locationManager;
-    static TextView dist, time, speed,location;
+    static TextView dist, time, speed, location;
     Button start, pause, stop;
     static long startTime, endTime;
     Switch simpleSwitch;
@@ -45,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
             myService = binder.getService();
             status = true;
         }
+
         @Override
         public void onServiceDisconnected(ComponentName name) {
 
@@ -61,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
         status = true;
         startTime = System.currentTimeMillis();
     }
+
     void unbindService() {
         if (status == false)
             return;
@@ -68,22 +71,26 @@ public class MainActivity extends AppCompatActivity {
         unbindService(sc);
         status = false;
     }
+
     @Override
     protected void onResume() {
         super.onResume();
 
     }
+
     @Override
     protected void onStart() {
         super.onStart();
 
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         if (status == true)
             unbindService();
     }
+
     @Override
     public void onBackPressed() {
         if (status == false)
@@ -93,11 +100,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void onRequestPermissionsResult(int requestCode,@NonNull String[] permissions, @NonNull int[] grantResults){
-        switch(requestCode){
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
 
-            case 1000:{
-                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            case 1000: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
                     Toast.makeText(myService, "GRANTED", Toast.LENGTH_SHORT).show();
                 else
                     Toast.makeText(myService, "DENIED", Toast.LENGTH_SHORT).show();
@@ -116,14 +123,14 @@ public class MainActivity extends AppCompatActivity {
 
 
         //Prośba o pozwolenie na używanie usług
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED||
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-        requestPermissions(new String[]{
-        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-        Manifest.permission.ACCESS_FINE_LOCATION,
-        Manifest.permission.ACCESS_COARSE_LOCATION
-        },1000);
+            requestPermissions(new String[]{
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+            }, 1000);
         }
 
 //Inicjacja przycisków i pól tekstowych
@@ -139,84 +146,79 @@ public class MainActivity extends AppCompatActivity {
         simpleSwitch = (Switch) findViewById(R.id.simpleSwitch);
 
 
-
         simpleSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               if(simpleSwitch.isChecked()){
-                   km = false;
-                   simpleSwitch.setText("m");
-                   unit = "m";
-               }
-               else {
-                   km = true;
-                   simpleSwitch.setText("km");
-                   unit = "km";
-               }
+                if (simpleSwitch.isChecked()) {
+                    km = false;
+                    simpleSwitch.setText("m");
+                    unit = "m";
+                } else {
+                    km = true;
+                    simpleSwitch.setText("km");
+                    unit = "km";
+                }
 
             }
         });
 
 
         start.setOnClickListener(new View.OnClickListener() {
-    @Override
-    public void onClick(View v) {
+                                     @Override
+                                     public void onClick(View v) {
 
-        checkGps();
-        locationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
-        if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
-            return;
-        if(status == false){
-            bindService();
-            locate = new ProgressDialog(MainActivity.this);
-            locate.setIndeterminate(true);
-            locate.setCancelable(false);
-            locate.setMessage("Pobieranie lokalizacji...");
-            locate.show();
+                                         checkGps();
+                                         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+                                         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+                                             return;
+                                         if (status == false) {
+                                             bindService();
+                                             locate = new ProgressDialog(MainActivity.this);
+                                             locate.setIndeterminate(true);
+                                             locate.setCancelable(false);
+                                             locate.setMessage("Pobieranie lokalizacji...");
+                                             locate.show();
 
-            start.setVisibility(View.GONE);
-            pause.setVisibility(View.VISIBLE);
-            pause.setText("Pauza");
-            stop.setVisibility(View.VISIBLE);
-        }
+                                             start.setVisibility(View.GONE);
+                                             pause.setVisibility(View.VISIBLE);
+                                             pause.setText("Pauza");
+                                             stop.setVisibility(View.VISIBLE);
+                                         }
+                                     }
+
+                                 }
+        );
+        pause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (pause.getText().toString().equalsIgnoreCase("Pauza")) {
+                    pause.setText("Wznów");
+                    p = 1;
+                } else if (pause.getText().toString().equalsIgnoreCase("Wznów")) {
+                    checkGps();
+                    locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+                    if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+                        return;
+                    pause.setText("Pauza");
+                    p = 0;
+                }
+            }
+        });
+        stop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (status == true)
+                    unbindService();
+                start.setVisibility(View.VISIBLE);
+                pause.setText("Pauza");
+                pause.setVisibility(View.GONE);
+                stop.setVisibility(View.GONE);
+
+
+            }
+        });
+
     }
-
-                         }
-);
-pause.setOnClickListener(new View.OnClickListener() {
-    @Override
-    public void onClick(View v) {
-       if(pause.getText().toString().equalsIgnoreCase("Pauza")){
-           pause.setText("Wznów");
-           p =1;
-       }
-       else if(pause.getText().toString().equalsIgnoreCase("Wznów")){
-           checkGps();
-           locationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
-           if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
-               return;
-       pause.setText("Pauza");
-       p=0;
-       }
-    }
-});
-stop.setOnClickListener(new View.OnClickListener() {
-    @Override
-    public void onClick(View v) {
-        if(status == true)
-            unbindService();
-        start.setVisibility(View.VISIBLE);
-        pause.setText("Pauza");
-        pause.setVisibility(View.GONE);
-        stop.setVisibility(View.GONE);
-
-
-    }
-});
-
-    }
-
-
 
 
     //metoda z powiadomieniem o koniecznośći włączenia GPS.

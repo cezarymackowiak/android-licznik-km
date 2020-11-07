@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 
 
-
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 
@@ -26,11 +25,10 @@ import java.util.concurrent.TimeUnit;
 public class LocationService extends Service implements
         LocationListener,
         GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener
-{
+        GoogleApiClient.OnConnectionFailedListener {
 
-    private static final long INTERVAL = 1000*2;
-    private static final long FASTEST_INTERVAL = 1000*1;
+    private static final long INTERVAL = 1000 * 2;
+    private static final long FASTEST_INTERVAL = 1000 * 1;
     LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
     Location mCurrentLocation, lStart, lEnd;
@@ -60,19 +58,19 @@ public class LocationService extends Service implements
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId){
-        return super.onStartCommand(intent, flags,startId);
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return super.onStartCommand(intent, flags, startId);
     }
 
     protected void stopLocationUpdates() {
         LocationServices.FusedLocationApi.removeLocationUpdates(
-                mGoogleApiClient,  this);
+                mGoogleApiClient, this);
         distance = 0;
     }
 
     @Override
     public void onLocationChanged(Location location) {
-       MainActivity.locate.dismiss();
+        MainActivity.locate.dismiss();
         mCurrentLocation = location;
         if (lStart == null) {
             lStart = mCurrentLocation;
@@ -84,17 +82,15 @@ public class LocationService extends Service implements
         updateUI();
 
         //Prędkość z tej metody podawana jest w metrach na sekundę
-        speed = location.getSpeed()*18/5;
+        speed = location.getSpeed() * 18 / 5;
     }
-
 
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        try{
-            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,mLocationRequest,  this);
-        }
-        catch(SecurityException e){
+        try {
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        } catch (SecurityException e) {
 
         }
     }
@@ -121,22 +117,22 @@ public class LocationService extends Service implements
         if (MainActivity.p == 0) {
             String minutes = " minut";
 
-            distance = distance + (lStart.distanceTo(lEnd)/1000 );
+            distance = distance + (lStart.distanceTo(lEnd) / 1000);
 
-            MainActivity.location.setText(("La : " + lStart.getLatitude()) + "\n" + " Lo : " +(lStart.getLongitude())  );
+            MainActivity.location.setText(("La : " + lStart.getLatitude()) + "\n" + " Lo : " + (lStart.getLongitude()));
             MainActivity.endTime = System.currentTimeMillis();
             long diff = MainActivity.endTime - MainActivity.startTime;
             diff = TimeUnit.MILLISECONDS.toMinutes(diff);
 
 
             // w zaleznosci od ilosci minut wyswietlana jest odpowiednia wersja słowa minut
-            if(diff == 1){
+            if (diff == 1) {
                 minutes = " minuta";
             }
-            if(diff>1 && diff <5){
+            if (diff > 1 && diff < 5) {
                 minutes = " minuty";
             }
-            if(diff >4){
+            if (diff > 4) {
                 minutes = " minut";
             }
             MainActivity.time.setText("Czas: " + diff + minutes);
@@ -146,18 +142,21 @@ public class LocationService extends Service implements
             else
                 MainActivity.speed.setText(".......");
 
-         // gdy włączone są km  wynik wyświetlany jest w KM
-            if(MainActivity.km){
-            MainActivity.dist.setText(new DecimalFormat("#.###").format(distance) + MainActivity.unit);}
+            // gdy włączone są km  wynik wyświetlany jest w KM
+            if (MainActivity.km) {
+                MainActivity.dist.setText(new DecimalFormat("#.###").format(distance) + MainActivity.unit);
+            }
 
-         // w przypadku ustawienia metrów wyświetlany jest wynik przemnożony przez 1000.
-            if(!MainActivity.km){
-            MainActivity.dist.setText(new DecimalFormat("#.###").format(distance*1000) + MainActivity.unit);}
+            // w przypadku ustawienia metrów wyświetlany jest wynik przemnożony przez 1000.
+            if (!MainActivity.km) {
+                MainActivity.dist.setText(new DecimalFormat("#.###").format(distance * 1000) + MainActivity.unit);
+            }
 
             lStart = lEnd;
 
         }
     }
+
     public boolean onUnbind(Intent intent) {
         stopLocationUpdates();
         if (mGoogleApiClient.isConnected())
